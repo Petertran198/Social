@@ -26,7 +26,7 @@ class TweetsController < ApplicationController
   def create
     # You have to use Tweet.create instead of Tweet.new because you need @tweet to create the id to be able to use it wehn we connect the associaiton between tags and tweet through Tweet_tag. The association can be formed without an id from @tweet 
     @tweet = Tweet.create(tweet_params)
-    We make a new array to hold each word of our tweet
+    # We make a new array to hold each word of our tweet
     message_arr = Array.new 
     message_arr = @tweet.message.split 
 
@@ -98,6 +98,6 @@ class TweetsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def tweet_params
-      params.require(:tweet).permit(:message, :user_id)
+      params.require(:tweet).permit(:message, :user_id, :link)
     end
 end
