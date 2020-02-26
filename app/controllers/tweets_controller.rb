@@ -1,6 +1,6 @@
 class TweetsController < ApplicationController
   before_action :set_tweet, only: [:show, :edit, :update, :destroy]
-
+  include TweetsHelper
   # GET /tweets
   # GET /tweets.json
   def index
@@ -24,7 +24,36 @@ class TweetsController < ApplicationController
   # POST /tweets
   # POST /tweets.json
   def create
-    @tweet = Tweet.new(tweet_params)
+    # You have to use Tweet.create instead of Tweet.new because you need @tweet to create the id to be able to use it wehn we connect the associaiton between tags and tweet through Tweet_tag. The association can be formed without an id from @tweet 
+    @tweet = Tweet.create(tweet_params)
+    We make a new array to hold each word of our tweet
+    message_arr = Array.new 
+    message_arr = @tweet.message.split 
+
+    #This will parse through the indiviual words in that tweet 
+    message_arr.each_with_index do |word,index|
+      #If the first letter is a hashtag in the word 
+      #We will either add it in our Tag model, or if it wasn't created yet we create a new instance of it 
+      if word[0] == "#"
+        #Pluck is a method that returns an array of attributes that matches the column's name 
+        #With that being said we are looking if that array includes the word  
+        #If it does then there is already a record of it in our database if not we will add it in 
+        if Tag.pluck(:phrase).include?(word)
+          tag = Tag.find_by(phrase: word)
+        else  
+          tag = Tag.create(phrase: word)
+        end
+        # So after we create a new instance of Tag or found it in the database we can use both tag and @tweet to set up the association by passing it into TweetTag 
+        tweet_tag = TweetTag.create(tweet_id: @tweet.id, tag_id: tag.id)
+        #message_arr[index] will return the word that includes the #hashtag, then we will change that #hashtag word into a link
+        message_arr[index] = "<a href='/tag_tweets?id=#{tag.id}'>#{word}</a>"
+      end
+    end
+    #After We are do with parsing through the tweet and checking if there is a #hashtag or not we then join the tweet back together because it was split and assign 
+    @tweet.update(message: message_arr.join(" "))
+
+
+    # get_tag(@tweet)
 
     respond_to do |format|
       if @tweet.save
