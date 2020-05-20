@@ -1,14 +1,18 @@
-<h1>@<%= @user.username %>'s Profile & Tweets</h1>
+<center> 
+    <h1>@<%= @user.username %>'s Profile & Tweets</h1>
+    <%# we pass in the id because we will need an id param inside our followers and followings controller method %>
 
-<p><%= @user.name %></p>
-<p><%= @user.location %></p>
-<p><%= @user.bio %></p>
+    <%= link_to "Followers", followers_path(id: @user.id)%> | <%= link_to "Followings", followings_path(id: @user.id) %>
+    <p><%= @user.name %></p>
+    <p><%= @user.location %></p>
+    <p><%= @user.bio %></p>
+</center>
 
 <p>
     <!-- If the current user is following then we give them an unfollow btn
     If the current user is not following and it is not ourselves then we give them a follow button  -->
     <% if current_user.following.include?(@user.id) %>
-        <%= link_to "Unfollow", unfollow_path(id: @user.id), class:"btn btn-danger" %>
+        <%= link_to "Following", unfollow_path(id: @user.id), class:"btn btn-danger", id:"unfollow_btn" %>
     <% else %>
         <% if current_user.id != @user.id %>    
             <%= link_to "Follow", now_following_path(id: @user.id), class:"btn btn-primary" %>
@@ -18,10 +22,21 @@
 </p>
 
 
-<!-- We call @user because that is the variable we have access to. Then we have to jump to the tweets of that user so we can use the tweets data -->
-<% @user.tweets.each do |tweet| %>
-    <div>
+<!-- 
+We call @user because that is the variable we have access to. Then we have to jump to the tweets of that user so we can use the tweets data 
+    <% @user.tweets.each do |tweet| %>
+        <div class="jumbotron">
+            <p>@<%= @user.username %></p>
+            <p><%= tweet.message %></p> 
+        </div>
+    <% end %>
+--> 
+
+<% @tweets.each do |tweet| %>
+    <div class="jumbotron">
         <p>@<%= @user.username %></p>
-	<p><%= tweet.message %></p>
+	    <p><%= tweet.message %></p> 
     </div>
 <% end %>
+
+<%= will_paginate @tweets %>

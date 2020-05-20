@@ -1,14 +1,56 @@
-<h1>@<%= current_user.username %>'s Twitter Feed</h1>
-<p>Here is what your "friends" are saying:</p>
+<h1>@<%=current_user.username %></h1>
+<p> Here is what your'e friends are saying:</p>
 
 
-<div>
-    <% @following_tweets.each do |tweet| %>
-    <div>
-        <!-- We have to state that we are look for the user by the id or the routes won't know  -->
-	    <p>@<%=link_to tweet.user.username, show_user_path(id: tweet.user_id) %></p>
-	    <p><%= tweet.message.html_safe %></p>
-	</div>
-    <% end %>
-</div>
+<% @following_tweets.each do |tweet| %>
+    <div class="jumbotron row">
+        <div class="col-md-4 text-center">
+                <% if !tweet.user.avatar.blank? %>
+                    <%=link_to image_tag(tweet.user.avatar.url, class: "avatar-size"), show_user_path(id: tweet.user_id) %>
+                <% else %>
+                    <%= link_to image_tag('gravatar.jpg', class: "avatar-size"), show_user_path(id: tweet.user_id) %>
+                <% end %> 
+                <br><%=link_to tweet.user.username, show_user_path(id: tweet.user_id)  %>
 
+     
+        </div>
+        <div class="col-md-8">
+            <%= sanitize tweet.message %> - 
+            <%# 
+                time_ago_in_words is a method that gives us the time it has been from whatever attribute we     specify 
+                In this case we specify that we want the time it has been since the tweet has been created
+                SO the math we are doing is that if the current time subtracted by the time that the tweet is created is less than a day we will use time_ago_in_words. Ruby will calculate time data type in seconds. 86400 is how many seconds are in a day  
+            %>
+            <%= time_ago_in_words(tweet.created_at) if Time.now - tweet.created_at <  86400 %> 
+            <%# 
+                strftime is another date helper but its great for timestamps such as Month Day
+                We want to use this because on actual twitter if it is pass a day twitter just say what month and day the post was created on
+            %>
+            <%= tweet.created_at.strftime('%b %e on a %A') if Time.now - tweet.created_at >  86400 %>
+            <br>
+            
+            <!-- EXTRA EXTRA EXTRA -->
+            <!-- List of comments that belongs to each tweet -->
+            <div style="min-height: 110px">
+                <% tweet.comments.each do |c| %>
+                    <div class="panel panel-default">
+                        <div class="panel-body"><%= c.post %> by <%= link_to c.user.username, show_user_path(id: c.user_id)%></div>
+                    </div>
+                <% end %>
+            </div>
+
+            <!-- EXTRA EXTRA EXTRA -->
+            <!-- comment form -->
+            <%= form_for([tweet, @comment]) do |c| %>
+                <%= c.text_field :post, class: "form-control",  placeholder: "Comment" %>
+                <%= c.hidden_field :tweet_id, :value => tweet.id %>
+                <%= c.hidden_field :user_id, :value => current_user.id %>
+                <%= c.submit "Add a Comment ", class: "btn btn-block btn-primary"%>
+            <% end %> 
+
+        </div> <!-- End of second col -->
+    </div> <!-- End of row -->
+
+<% end %>
+
+<%= will_paginate @following_tweets %>

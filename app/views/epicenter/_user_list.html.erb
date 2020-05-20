@@ -1,0 +1,29 @@
+<% @users.each do |user| %>
+    <div class="jumbotron" style="min-height: 200px;">
+        <div class="row">
+            <div class="col-md-4">
+                <%# if the user has an avatar we put the avatar if not we just show a default no image %>
+                <% if !user.avatar.blank? %>
+                    <%=link_to image_tag(user.avatar.url, class: "avatar-size"), show_user_path(id: user.id) %>
+                <% else %>
+                    <%= link_to image_tag('gravatar.jpg', class: "avatar-size"), show_user_path(id: user.id) %>
+                <% end %>
+            </div>
+            <div class="col-md-8">
+                <%# link_to can also become a block if it is a block we can put mulitple html tags inside the same hyperlink, in this case we are putting the user.username and user.name %>
+                <%= link_to show_user_path(id: user.id) do %> 
+                    <h2>@<%= user.username %> </h2>
+                    <p><%= user.name %></p>
+                <% end %>
+                <% if current_user.following.include?(user.id) %>
+                    <%= link_to "Following", unfollow_path(id: user.id), class: "btn  btn-primary", id: "unfollow_btn" %>
+                <% elsif current_user.id != user.id %>
+                    <%= link_to "Follow", now_following_path(id: user.id), class: "btn btn-primary" %>
+                <% end %>
+                <p>
+                    <%= user.bio %>
+                </p>
+            </div>
+        </div>
+    </div>
+<% end %>

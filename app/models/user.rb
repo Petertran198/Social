@@ -4,6 +4,7 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
   has_many :tweets
+  has_many :comments 
 
   #Sets up the connection for us to upload
   mount_uploader :avatar, AvatarUploader

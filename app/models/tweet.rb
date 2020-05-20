@@ -2,6 +2,7 @@ class Tweet < ApplicationRecord
     belongs_to :user
     has_many :tweet_tags
     has_many :tags, through: :tweet_tags
+    has_many :comments 
 
     #We only validate on create because of the way our create action works. Due to the line @tweet.save this will run a second db transaction which means it will again call link_check and apply_link
     # We do not want this because it will break our links   
